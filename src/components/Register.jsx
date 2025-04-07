@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserContext";
 
 const Register = ({
   name,
@@ -8,40 +11,55 @@ const Register = ({
   password,
   setPassword,
 }) => {
-  const submitHandler = (e) => {
+  const navigate = useNavigate();
+  const submitHandler = async (e) => {
     e.preventDefault();
-    console.log("Registered:", { name, email, password });
-    setEmail("");
-    setName("");
-    setPassword("");
+
+    const user = {
+      name: name,
+      email: email,
+      password: password,
+    };
+
+    try {
+      const response = await axios.post("http://localhost:8090/signup", user);
+      console.log("User registered:", response.data);
+      alert("User registered successfully!");
+
+      setName("");
+      setEmail("");
+      setPassword("");
+      navigate("/login");
+    } catch (error) {
+      console.error("Error during registration:", error);
+      alert("Failed to register user");
+    }
   };
 
   return (
     <div>
-      <form
-        className="register-form"
-        onSubmit={(e) => {
-          submitHandler(e);
-        }}
-      >
+      <form className="register-form" onSubmit={submitHandler}>
         <h1>Register</h1>
         <input
           type="text"
           placeholder="Username"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          required
         />
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
         <button type="submit">Register</button>
         <p>
